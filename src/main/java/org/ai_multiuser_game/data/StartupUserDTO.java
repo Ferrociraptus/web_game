@@ -1,4 +1,4 @@
-package org.ai_multyuser_game.data;
+package org.ai_multiuser_game.data;
 
 public class StartupUserDTO {
     public String username;

@@ -1,6 +1,6 @@
-package org.ai_multyuser_game.data;
+package org.ai_multiuser_game.data;
 
-import org.ai_multyuser_game.entities.UserEntity;
+import org.ai_multiuser_game.entities.UserEntity;
 
 public class UserDataDTO {
     public String username;

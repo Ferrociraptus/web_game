@@ -1,4 +1,4 @@
-package org.ai_multyuser_game.entities;
+package org.ai_multiuser_game.entities;
 
 import io.quarkus.elytron.security.common.BcryptUtil;
 import io.quarkus.hibernate.orm.panache.PanacheEntity;
@@ -9,15 +9,17 @@ import io.quarkus.security.jpa.Username;
 
 import javax.persistence.*;
 
-import org.ai_multyuser_game.data.*;
+import org.ai_multiuser_game.data.*;
 
 @Entity
-//@Table(name = "user")
+//@Table(name = "user",
+//        uniqueConstraints = {@UniqueConstraint(columnNames={"username"})})
 @PersistenceUnit
 @UserDefinition
 public class UserEntity extends PanacheEntity {
 
     @Username
+
     public String username;
     @Password
     public String password;
@@ -80,6 +82,10 @@ public class UserEntity extends PanacheEntity {
         user.firstName = firstName;
         user.secondName = secondName;
         user.persist();
+    }
+
+    public static UserEntity getByUsername(String username){
+        return find("username", username).firstResult();
     }
 
     public FullUserDTO toFullDTO(){
