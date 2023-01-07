@@ -26,9 +26,6 @@ public class UserEntity extends PanacheEntity {
     @Roles
     public String role = "user";
 
-    public String firstName;
-    public String secondName;
-
     public UserEntity() {}
 
     public UserEntity(String username, String password){
@@ -43,31 +40,6 @@ public class UserEntity extends PanacheEntity {
         this.role = role;
     }
 
-
-    public UserEntity(String username, String password, String role, String firstName, String secondName){
-        this.username = username;
-        this.password = BcryptUtil.bcryptHash(password);
-        this.role = role;
-        this.firstName = firstName;
-        this.secondName = secondName;
-    }
-
-    public UserEntity(String username, String password, String firstName, String secondName){
-        this.username = username;
-        this.password = BcryptUtil.bcryptHash(password);
-        this.role = "user";
-        this.firstName = firstName;
-        this.secondName = secondName;
-    }
-
-    public UserEntity(StartupUserDTO user){
-        this.username = user.username;
-        this.password = user.password;
-        this.role = user.role;
-        this.firstName = user.firstName;
-        this.secondName = user.secondName;
-    }
-
     /**
      * Adds a new user to the database
      * @param username the username
@@ -79,8 +51,6 @@ public class UserEntity extends PanacheEntity {
         user.username = username;
         user.password = BcryptUtil.bcryptHash(password);
         user.role = role;
-        user.firstName = firstName;
-        user.secondName = secondName;
         user.persist();
     }
 
@@ -89,6 +59,6 @@ public class UserEntity extends PanacheEntity {
     }
 
     public FullUserDTO toFullDTO(){
-        return new FullUserDTO(id, username, password, role, firstName, secondName);
+        return new FullUserDTO(id, username, password, role);
     }
 }

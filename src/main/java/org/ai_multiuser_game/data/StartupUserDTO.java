@@ -5,8 +5,6 @@ public class StartupUserDTO {
 
     public String password;
     public String role;
-    public String firstName;
-    public String secondName;
 
     public StartupUserDTO() {}
 
@@ -14,14 +12,10 @@ public class StartupUserDTO {
         this.username = username;
         this.password = password;
         this.role = role;
-        this.firstName = firstName;
-        this.secondName = secondName;
     }
 
     public StartupUserDTO(FullUserDTO user){
         this.username = user.username;
         this.role = user.role;
-        this.firstName = user.firstName;
-        this.secondName = user.secondName;
     }
 }
