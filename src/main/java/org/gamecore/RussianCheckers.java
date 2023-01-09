@@ -1,14 +1,7 @@
 package org.gamecore;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
-class GameStateError extends Exception{
-    GameStateError(){ super();}
-    GameStateError(String msg){ super(msg);}
-}
 public class RussianCheckers {
 
     public class Checker{
@@ -342,5 +335,9 @@ public class RussianCheckers {
             stringBoard.append('\n');
         }
         return stringBoard.toString();
+    }
+
+    public List<Checker> getAllCheckers(){
+        return Arrays.stream(board).flatMap(arr -> Arrays.stream(arr)).filter(Objects::nonNull).toList();
     }
 }

@@ -9,7 +9,7 @@ import java.util.Set;
  * Inner chain of steps declares the one turn of one player
  */
 public class CheckerGameStep {
-    static class CheckerStepApplyException extends Exception {
+    public static class CheckerStepApplyException extends Exception {
         CheckerStepApplyException() { super();}
         CheckerStepApplyException(String msg) { super();}
     }

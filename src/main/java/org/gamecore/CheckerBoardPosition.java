@@ -1,30 +1,11 @@
 package org.gamecore;
 
-class OutOfBorderException extends Exception{
-    OutOfBorderException(){
-        super();
-    }
-    OutOfBorderException(String msg){
-        super(msg);
-    }
-}
-
-class IllegalCheckerPosition extends Exception{
-    IllegalCheckerPosition(){
-        super();
-    }
-
-    IllegalCheckerPosition(String msg){
-        super(msg);
-    }
-}
-
 
 /**
  * (0, 0) position is equal to a1
  * This class represents available position of checker on the checkerboard. It can't be unpleasant position.
  */
-class CheckerBoardPosition {
+public class CheckerBoardPosition {
     static final private int BOARD_SIZE = RussianCheckers.BOARD_SIZE;
 
     private int row;
