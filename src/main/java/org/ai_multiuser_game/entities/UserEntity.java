@@ -12,8 +12,6 @@ import javax.persistence.*;
 import org.ai_multiuser_game.data.*;
 
 @Entity
-//@Table(name = "user",
-//        uniqueConstraints = {@UniqueConstraint(columnNames={"username"})})
 @PersistenceUnit
 @UserDefinition
 public class UserEntity extends PanacheEntity {
@@ -40,6 +38,10 @@ public class UserEntity extends PanacheEntity {
         this.role = role;
     }
 
+    public UserEntity(StartupUserDTO newUser) {
+        this.username = newUser.username;
+        this.password = newUser.password;
+    }
     /**
      * Adds a new user to the database
      * @param username the username
@@ -58,6 +60,9 @@ public class UserEntity extends PanacheEntity {
         return find("username", username).firstResult();
     }
 
+    public static UserEntity getFromUserDTO(UserDTO user){
+        return getByUsername(user.username);
+    }
     public FullUserDTO toFullDTO(){
         return new FullUserDTO(id, username, password, role);
     }

@@ -7,7 +7,7 @@ public class UserDataDTO {
 
     public UserDataDTO() {}
 
-    public UserDataDTO(String username, String firstName, String secondName){
+    public UserDataDTO(String username){
         this.username = username;
     }
 

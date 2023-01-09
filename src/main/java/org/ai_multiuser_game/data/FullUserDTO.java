@@ -7,8 +7,6 @@ public class FullUserDTO {
     public String username;
     public String password;
     public String role;
-    public String firstName;
-    public String secondName;
 
     // json required
     public FullUserDTO() {}
