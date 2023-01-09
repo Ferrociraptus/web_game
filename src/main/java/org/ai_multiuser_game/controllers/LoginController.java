@@ -14,7 +14,7 @@ import java.util.Map;
 
 @Path("/api/login")
 @ApplicationScoped
-public class LoginREST {
+public class LoginController {
 
     @Inject
     LoginService loginService;
