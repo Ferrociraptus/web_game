@@ -8,15 +8,17 @@ import io.quarkus.security.jpa.UserDefinition;
 import io.quarkus.security.jpa.Username;
 
 import javax.persistence.*;
+import javax.transaction.Transactional;
 
 import org.ai_multiuser_game.data.*;
+import org.hibernate.validator.constraints.UniqueElements;
 
 @Entity
-@PersistenceUnit
 @UserDefinition
 public class UserEntity extends PanacheEntity {
 
     @Username
+    @Column(unique = true)
 
     public String username;
     @Password
@@ -24,24 +26,39 @@ public class UserEntity extends PanacheEntity {
     @Roles
     public String role = "user";
 
-    public UserEntity() {}
+    public UserEntity() {super();}
 
     public UserEntity(String username, String password){
+        super();
         this.username = username;
         this.password = BcryptUtil.bcryptHash(password);
         this.role = "user";
     }
 
     public UserEntity(String username, String password, String role){
+        super();
         this.username = username;
         this.password = BcryptUtil.bcryptHash(password);
         this.role = role;
     }
 
     public UserEntity(StartupUserDTO newUser) {
+        super();
         this.username = newUser.username;
-        this.password = newUser.password;
+        this.password = BcryptUtil.bcryptHash(newUser.password);
     }
+
+    @Transactional
+    public static UserEntity createNewUser(StartupUserDTO newUser){
+        var user = new UserEntity(newUser);
+        user.persistAndFlush();
+        return user;
+    }
+    @GeneratedValue
+    public Long getId(){
+        return id;
+    }
+
     /**
      * Adds a new user to the database
      * @param username the username
@@ -53,7 +70,7 @@ public class UserEntity extends PanacheEntity {
         user.username = username;
         user.password = BcryptUtil.bcryptHash(password);
         user.role = role;
-        user.persist();
+        user.persistAndFlush();
     }
 
     public static UserEntity getByUsername(String username){
