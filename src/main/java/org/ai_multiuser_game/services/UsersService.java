@@ -1,5 +1,6 @@
 package org.ai_multiuser_game.services;
 
+import io.quarkus.elytron.security.common.BcryptUtil;
 import org.ai_multiuser_game.data.FullUserDTO;
 import org.ai_multiuser_game.data.StartupUserDTO;
 import org.ai_multiuser_game.data.UserDTO;
@@ -8,6 +9,8 @@ import org.ai_multiuser_game.entities.UserEntity;
 
 import javax.inject.Singleton;
 import javax.transaction.Transactional;
+import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.Response;
 import java.util.List;
 
 @Singleton
@@ -19,8 +22,13 @@ public class UsersService {
 
     @Transactional
     public Long createUser(StartupUserDTO newUser){
-        var user = new UserEntity(newUser);
-        return user.id;
+        if (UserEntity.getByUsername(newUser.username) != null)
+            throw new WebApplicationException("User with \"" + newUser.username + "\" username exist",
+                    Response.status(409, "User with \"" + newUser.username + "\" username exist").build());
+
+        var user = UserEntity.createNewUser(newUser);
+        user.persistAndFlush();
+        return user.getId();
     }
 
     public UserDataDTO getUserById(Long id){
@@ -31,9 +39,8 @@ public class UsersService {
     @Transactional
     public void updateUsersData(FullUserDTO userData){
         UserEntity user = UserEntity.findById(userData.id);
-        user.password = userData.password;
         user.username = userData.username;
-        user.password = userData.password;
+        user.password = BcryptUtil.bcryptHash(userData.password);
         user.role = userData.role;
     }
 
