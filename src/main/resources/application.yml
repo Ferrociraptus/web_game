@@ -1,0 +1,79 @@
+quarkus:
+  banner:
+    enabled: false
+
+  http:
+    port: 8080
+    ssl-port: 8443
+    insecure-requests: REDIRECT
+    root-path: /
+    auth:
+      basic: false
+    ssl:
+      certificate:
+        file: ./ssl/fullchain.pem
+        key-file: ./ssl/privkey.pem
+
+    cors:
+      ~: true
+      access-control-allow-credentials: true
+
+  hibernate-orm:
+    database:
+      generation: none
+    log:
+      sql: true
+
+  devservices:
+    enabled: false
+
+  dev-ui:
+    cors:
+      enabled: true
+
+  swagger-ui:
+    always-include: true
+    with-credentials: true
+
+  datasource:
+    db-kind: postgresql
+    username: checkers
+    password: checkers_postgres
+    jdbc:
+      url: jdbc:postgresql://localhost:5432/postgres
+      max-size: 16
+
+  container-image:
+    name: web_game
+    group: localhost
+    build: true
+    tag: latest
+    builder: jib
+
+  native:
+    resources:
+      includes: -H:IncludeResources=.*\\.pem
+
+
+  jib:
+    docker-executable-name: podman
+    offline-mode: true
+#    platforms: linux/x86_64
+    platforms: arm64
+
+smallrye:
+  jwt:
+    sign:
+      key:
+        location: "jwt/privateKey.pem"
+
+mp:
+  jwt:
+    verify:
+      issuer: "ai-multiuser-game"
+      publickey:
+        location: "jwt/publicKey.pem"
+
+login:
+  jwt:
+    expiration_time: 3600
