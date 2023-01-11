@@ -313,6 +313,11 @@ public class RussianCheckers {
         return board[position.getRow()][position.getColumn()];
     }
 
+    public Checker getCheckerAt(String posNotation)
+            throws OutOfBorderException, IllegalCheckerPosition {
+        return getCheckerAt(new CheckerBoardPosition(posNotation));
+    }
+
     public Checker getCheckerAt(int row, int column)
             throws OutOfBorderException, IllegalCheckerPosition {
         return getCheckerAt(new CheckerBoardPosition(row, column));
