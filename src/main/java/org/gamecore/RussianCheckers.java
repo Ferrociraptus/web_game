@@ -126,9 +126,11 @@ public class RussianCheckers {
                                     step.transformedToQueen();
                                 }
                                 steps.add(step);
-                            } else {
+                            } else { // if we can kill someone
                                 nextPos.moveOn(forwardRow, columnStep);
-                                if (getCheckerAt(nextPos) == null) {
+                                // if we can jump and someone is not our player
+                                if (getCheckerAt(nextPos) == null && nextCellChecker != null
+                                        && nextCellChecker.color != color) {
                                     var step = new CheckerGameStep(this, position, nextPos);
                                     step.setKilledChecker(nextCellChecker);
                                     isCheckerKilled = true;
@@ -150,7 +152,7 @@ public class RussianCheckers {
 
                             Checker nextCellChecker = getCheckerAt(nextPos);
 
-                            if (nextCellChecker != null){
+                            if (nextCellChecker != null && !nextCellChecker.color.equals(color)){
                                 nextPos.moveOn(backwardRow, columnStep);
                                 if (getCheckerAt(nextPos) == null) {
                                     var step = new CheckerGameStep(this, position, nextPos);
@@ -165,6 +167,7 @@ public class RussianCheckers {
                 }
                 case Queen -> {
                     for (int i = 0; i < 4; i++){
+                        // iterate incrementer to go through the all 4 sides
                         int rowStep = switch (i){
                             case 0, 1 -> 1;
                             default -> -1;
