@@ -24,8 +24,17 @@ public class CheckerGameStep {
 
     public CheckerGameStep(RussianCheckers.Checker checker, CheckerBoardPosition from, CheckerBoardPosition to){
         applyOnChecker = checker;
-        this.from = from;
-        this.to = to;
+        this.from = from.copy();
+        this.to = to.copy();
+    }
+
+    public CheckerGameStep(RussianCheckers.Checker checker, RussianCheckers.Checker killedChecker,
+                           CheckerBoardPosition from, CheckerBoardPosition to){
+        applyOnChecker = checker;
+        this.from = from.copy();
+        this.to = to.copy();
+        this.killedChecker = killedChecker;
+        this.killedChecker.killStub();
     }
 
     public CheckerGameStep(CheckerGameStep previousStep, CheckerBoardPosition nextPos) throws GameStateError {
@@ -42,7 +51,7 @@ public class CheckerGameStep {
             throw new CheckerStepApplyException("You can't kill plural checkers for one step." +
                     " You can do this by plural steps in one turn");
 
-        if (nextStep == null)
+        if (nextStep == null && killedChecker != null)
             killedChecker.killStub();
     }
 
