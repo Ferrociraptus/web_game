@@ -1,6 +1,7 @@
 package org.gamecore;
 
 import java.util.*;
+import java.util.stream.Stream;
 
 public class RussianCheckers {
 
@@ -295,10 +296,53 @@ public class RussianCheckers {
             }
 
             isStepPassed = true;
+            checkWin();
+        }
+
+        // temporary solution of check
+        private boolean isSomeKills(){
+            return Arrays.stream(board).flatMap(Arrays::stream)
+                    .filter(Objects::nonNull)
+                    .filter(c -> c.color.equals(color))
+                    .flatMap(checker -> {
+                            try {
+                                return checker.getAvailableSteps().stream();
+                            } catch (Throwable ignore) {
+                                return Stream.empty();
+                            }
+                        })
+                    .filter(CheckerGameStep::isSomeCheckerKilled)
+                    .limit(1) // for faster calculation
+                    .toList().size() != 0;
         }
 
         public void moveChecker(CheckerBoardPosition pos){
 
+        }
+
+        private void checkWin(){
+            CheckerColor opponentColor = color.getOpposite();
+            List<Checker> colorizedCheckers = Arrays.stream(board).flatMap(Arrays::stream)
+                    .filter(Objects::nonNull)
+                    .filter(c -> c.color.equals(opponentColor))
+                    .toList();
+            if (colorizedCheckers.size() == 0){
+                winSide = color;
+            } else if (turnOf == opponentColor) {
+                List<CheckerGameStep> availableSteps = colorizedCheckers.stream()
+                        .flatMap(checker -> {
+                            try {
+                                return checker.getAvailableSteps().stream();
+                            } catch (Throwable ignore) {
+                                return Stream.empty();
+                            }
+                        })
+//                    .limit(1) // for faster calculation
+                        .toList();
+
+                if (availableSteps.size() == 0)
+                    winSide = color.getOpposite();
+            }
         }
 
         public void changeType(CheckerGameStep step, Checker.CheckerType newType){
@@ -325,7 +369,11 @@ public class RussianCheckers {
     public static final int BOARD_SIZE = 8;
     // @board - checkers board indexing from left down corner
     private final Checker[][] board = new Checker[BOARD_SIZE][BOARD_SIZE];
-    private final Checker.CheckerColor turnOf = Checker.CheckerColor.White;
+
+    private CheckerGameStep gameLog = null;
+    private Checker.CheckerColor turnOf = Checker.CheckerColor.White;
+
+    private Checker.CheckerColor winSide = null;
 
 
     public RussianCheckers()
@@ -385,6 +433,14 @@ public class RussianCheckers {
             stringBoard.append('\n');
         }
         return stringBoard.toString();
+    }
+
+    public boolean isGameEnd(){
+        return winSide != null;
+    }
+
+    public Checker.CheckerColor getWinnerSide(){
+        return winSide;
     }
 
     public List<Checker> getAllCheckers(){
