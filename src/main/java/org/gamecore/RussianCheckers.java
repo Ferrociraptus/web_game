@@ -214,6 +214,15 @@ public class RussianCheckers {
             return steps;
         }
 
+        private void pushLogGameStep(CheckerGameStep step) throws GameStateError {
+            if (gameLog == null){
+                gameLog = step;
+            }
+            else {
+                gameLog.setNextStep(step);
+            }
+        }
+
         public CheckerColor getColor(){
             return color;
         }
