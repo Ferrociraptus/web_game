@@ -12,4 +12,7 @@ public class GameDTO {
     public String firstUserLogin;
     public String secondUserLogin;
     public GameStatus status;
+    public Long winnerId;
+
+    public CheckerColor turnOf = null;
 }
