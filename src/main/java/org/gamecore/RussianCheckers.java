@@ -30,6 +30,13 @@ public class RussianCheckers {
                 }
                 return "undefined checker color string transformation";
             }
+
+            public CheckerColor getOpposite(){
+                if (this == CheckerColor.White) {
+                    return Black;
+                }
+                return White;
+            }
         }
         private CheckerType type;
         final private CheckerColor color;
