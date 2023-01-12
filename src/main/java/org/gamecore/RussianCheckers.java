@@ -259,8 +259,28 @@ public class RussianCheckers {
                 }
 
                 // eating the checker
-                if (posBuf != null)
-                    board[posBuf.getRow()][posBuf.getColumn()] = null;
+                if (killingCheckerPosition != null) {
+                    getCheckerAt(killingCheckerPosition).hide();
+//                    pushLogGameStep(new CheckerGameStep(this, getCheckerAt(posBuf), position, pos));
+                }
+
+
+                if (color == CheckerColor.White && pos.getRow() == BOARD_SIZE-1)
+                    this.type = CheckerType.Queen;
+                else if (color == CheckerColor.Black && pos.getRow() == 0){
+                    this.type = CheckerType.Queen;
+                }
+
+                setCell(position, null);
+                position = pos.copy();
+                setCell(position, this);
+
+                try {
+                    List<CheckerGameStep> steps = getAvailableSteps();
+                    if (!(steps.size() != 0 && steps.get(0).isSomeCheckerKilled())){
+                        turnOf = turnOf.getOpposite();
+                    }
+                } catch (Throwable ignore) {}
             }
 
             isStepPassed = true;
