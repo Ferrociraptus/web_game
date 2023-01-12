@@ -1,13 +1,13 @@
 package org.ai_multiuser_game.entities;
 
 import io.quarkus.hibernate.orm.panache.PanacheEntity;
-import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
-import io.quarkus.panache.common.Sort;
 import org.ai_multiuser_game.data.GameDTO;
 import org.ai_multiuser_game.data.UserDTO;
 
 import javax.persistence.*;
 import javax.transaction.Transactional;
+import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.Response;
 import java.sql.Timestamp;
 import java.util.List;
 
@@ -27,6 +27,9 @@ public class GameEntity extends PanacheEntity {
     public Timestamp endTime = null;
 
     public GameStatus status;
+
+    @OneToOne
+    public UserEntity winSide = null;
 
     public GameEntity(){super();};
 
@@ -71,11 +74,16 @@ public class GameEntity extends PanacheEntity {
         return GameEntity.registerGame(UserEntity.findById(userId));
     }
 
+    @Transactional
+    public static void finishAllGames() {
+        GameEntity.update("status = ?1", GameStatus.FINISHED);
+    }
+
     public GameDTO toGameDTO(){
         GameDTO game = new GameDTO();
         game.id = id;
         game.firstUserId = user1.id;
-        if (game.secondUserId != null) {
+        if (user2 != null) {
             game.secondUserId = user2.id;
             game.secondUserLogin = user2.username;
         }
@@ -83,6 +91,8 @@ public class GameEntity extends PanacheEntity {
         game.secondUserColor = userColor2;
         game.firstUserLogin = user1.username;
         game.status = status;
+        if (winSide != null)
+            game.winnerId = winSide.id;
         return game;
     }
     @Transactional
@@ -98,20 +108,34 @@ public class GameEntity extends PanacheEntity {
     }
 
     @Transactional
-    public static void addUserToGame(GameDTO game, Long secondUserId){
+    public static GameDTO addUserToGame(GameDTO game, Long secondUserId){
         GameEntity gameEntity = GameEntity.findById(game.id);
 
         if (gameEntity.user2 != null)
-            return;
+            throw new WebApplicationException("Second user were connected",
+                    Response.status(409, "Second user exist in this game").build());
 
         gameEntity.user2 = UserEntity.findById(secondUserId);
         gameEntity.status = GameStatus.IN_PROCESS;
         gameEntity.persistAndFlush();
+        return gameEntity.toGameDTO();
     }
     @Transactional
     public static void finishGame(GameDTO game){
         GameEntity gameEntity = GameEntity.findById(game.id);
         gameEntity.endTime = new Timestamp(System.currentTimeMillis());
+        gameEntity.winSide = UserEntity.findById(game.winnerId);
+        gameEntity.persistAndFlush();
+    }
+
+    @Transactional
+    public static void capitulateGameByUser(GameDTO game, Long looserId){
+        UserEntity user = UserEntity.findById((game.firstUserId.equals(looserId))?game.secondUserId:game.firstUserId);
+
+        GameEntity gameEntity = GameEntity.findById(game.id);
+        gameEntity.endTime = new Timestamp(System.currentTimeMillis());
+        gameEntity.winSide = user;
+        gameEntity.status = GameStatus.FINISHED;
         gameEntity.persistAndFlush();
     }
 
