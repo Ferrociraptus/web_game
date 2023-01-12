@@ -1,10 +1,8 @@
 package org.ai_multiuser_game.entities;
 
 import io.quarkus.hibernate.orm.panache.PanacheEntity;
-import io.quarkus.panache.common.Sort;
 
 import javax.persistence.*;
-import javax.persistence.criteria.CriteriaBuilder;
 import javax.transaction.Transactional;
 
 @Entity
