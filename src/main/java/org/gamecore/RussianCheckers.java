@@ -97,6 +97,10 @@ public class RussianCheckers {
                 throws OutOfBorderException, IllegalCheckerPosition, GameStateError,
                 CheckerGameStep.CheckerStepApplyException {
 
+            if (turnOf != color)
+                throw new IllegalStateException("Now is " + turnOf.name() + " turn" +
+                        " but " + color.name() + " makes the step.");
+
             boolean isCheckerKilled = false;
             List<CheckerGameStep> steps = new ArrayList<>();
             hide();
@@ -118,6 +122,7 @@ public class RussianCheckers {
 
                             Checker nextCellChecker = getCheckerAt(nextPos);
 
+                            // if only step without kills
                             if (nextCellChecker == null && !isCheckerKilled) {
                                 var step = new CheckerGameStep(this, position, nextPos);
                                 if (color == CheckerColor.White && nextPos.getRow() == BOARD_SIZE-1)
@@ -177,11 +182,14 @@ public class RussianCheckers {
                             default -> -1;
                         };
 
+                        isCheckerKilled = false;
+
                         Checker cell = null, killed = null;
                         for (int stepNumber = 1;
                              CheckerBoardPosition.isPositionCorrect(position.getRow() + rowStep * stepNumber,
                                      position.getColumn() + columnStep * stepNumber); stepNumber++) {
-                            var pos = new CheckerBoardPosition(position.getRow() + rowStep, position.getColumn() + 1);
+                            var pos = new CheckerBoardPosition(position.getRow() + rowStep*stepNumber,
+                                    position.getColumn() + columnStep*stepNumber);
                             cell = getCheckerAt(pos);
                             if (cell == null) {
                                 var step = new CheckerGameStep(this, position, pos);
@@ -201,7 +209,7 @@ public class RussianCheckers {
             }
             if (isCheckerKilled)
                 steps = steps.stream().filter(CheckerGameStep::isSomeCheckerKilled).toList();
-
+            show();
             return steps;
         }
 
@@ -216,8 +224,8 @@ public class RussianCheckers {
         public void makeStep(CheckerBoardPosition pos)
                 throws IllegalArgumentException, OutOfBorderException, IllegalCheckerPosition {
             if (color != turnOf)
-                throw new IllegalStateException("Now is " + turnOf.getClass().getName() + " turn" +
-                        " but " + color.getClass().getName() + " makes the step.");
+                throw new IllegalStateException("Now is " + turnOf.name() + " turn" +
+                        " but " + color.name() + " makes the step.");
 
             if (board[pos.getRow()][pos.getColumn()] != null){
                 throw new IllegalArgumentException("Selected position under game unit." +
@@ -227,12 +235,13 @@ public class RussianCheckers {
             throw new IllegalArgumentException("Selected position is not placed on diagonal." +
                     " You can't make step to this place by one step by game rulers.");
             else if (Math.abs(pos.getRow() - position.getRow()) == 1){ // usual one step
-                board[pos.getRow()][pos.getColumn()] = this;
-                board[position.getRow()][position.getColumn()] = null;
-                position = pos;
+                setCell(position, null);
+                position = pos.copy();
+                setCell(position, this);
+                turnOf = turnOf.getOpposite();
             } else {
                 int rowStep = pos.getRow() - position.getRow();
-                int columnStep = pos.getColumn() / position.getColumn();
+                int columnStep = pos.getColumn() - position.getColumn();
 
                 if (Math.abs(rowStep) > 2 && type == CheckerType.Checker) {
                     throw new IllegalArgumentException(
@@ -240,17 +249,19 @@ public class RussianCheckers {
                 }
 
                 rowStep = rowStep / Math.abs(rowStep);
-                columnStep = columnStep / Math.abs(rowStep);
-                var posStep = new CheckerBoardPosition(rowStep, columnStep);
+                columnStep = columnStep / Math.abs(columnStep);
 
-                CheckerBoardPosition posBuf = null;
+                CheckerBoardPosition killingCheckerPosition = null;
 
-                for (CheckerBoardPosition iterPos = position.copy();
+                // check all cells on jump distance
+                for (CheckerBoardPosition iterPos = position.copy().moveOn(rowStep, columnStep);
                      iterPos.getRow() != pos.getRow();
-                     iterPos.moveOn(posStep)){
-                    if (board[iterPos.getRow()][iterPos.getColumn()] != null){
-                        if (posBuf == null) {
-                            posBuf = iterPos;
+                     iterPos.moveOn(rowStep, columnStep)){
+                    if (getCheckerAt(iterPos) != null){
+                        if (getCheckerAt(iterPos).color.equals(color))
+                            throw new IllegalArgumentException("You can't eat yourself");
+                        if (killingCheckerPosition == null) {
+                            killingCheckerPosition = iterPos.copy();
                         } else {
                             throw new IllegalArgumentException(
                                     "You can't eat plural checkers by one step by game rules");
@@ -337,6 +348,10 @@ public class RussianCheckers {
                 }
             }
         }
+    }
+
+    public Checker.CheckerColor getTurnSide(){
+        return turnOf;
     }
 
     public Checker getCheckerAt(CheckerBoardPosition position){
