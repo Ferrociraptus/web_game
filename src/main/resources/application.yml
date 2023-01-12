@@ -5,7 +5,7 @@ quarkus:
   http:
     port: 8080
     ssl-port: 8443
-    insecure-requests: REDIRECT
+    insecure-requests: ENABLED
     root-path: /
     auth:
       basic: false
@@ -21,6 +21,7 @@ quarkus:
   hibernate-orm:
     database:
       generation: none
+#      generation: drop-and-create
     log:
       sql: true
 

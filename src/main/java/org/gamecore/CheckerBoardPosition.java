@@ -126,9 +126,13 @@ public class CheckerBoardPosition {
         return this.copy().moveOn(-pos.row, -pos.column);
     }
 
-    public CheckerBoardPosition copy()
-            throws OutOfBorderException, IllegalCheckerPosition {
-        return new CheckerBoardPosition(row, column);
+    public CheckerBoardPosition copy() {
+        try {
+            return new CheckerBoardPosition(row, column);
+        }
+        catch (Throwable ignore){
+            return null;
+        }
     }
 
     public String getPosNotation(){
