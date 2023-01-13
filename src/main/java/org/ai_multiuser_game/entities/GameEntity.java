@@ -125,6 +125,7 @@ public class GameEntity extends PanacheEntity {
         GameEntity gameEntity = GameEntity.findById(game.id);
         gameEntity.endTime = new Timestamp(System.currentTimeMillis());
         gameEntity.winSide = UserEntity.findById(game.winnerId);
+        gameEntity.status = GameStatus.FINISHED;
         gameEntity.persistAndFlush();
     }
 

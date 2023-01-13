@@ -5,7 +5,7 @@ quarkus:
   http:
     port: 8080
     ssl-port: 8443
-    insecure-requests: ENABLED
+    insecure-requests: REDIRECT
     root-path: /
     auth:
       basic: false

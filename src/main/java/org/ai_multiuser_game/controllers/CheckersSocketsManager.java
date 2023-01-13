@@ -63,15 +63,10 @@ public class CheckersSocketsManager {
         sessions.remove(gameData.secondUserId);
     }
 
-    public void informUserAboutTurn(GameDTO gameData, Long userId) {
-        sessions.get(userId).getAsyncRemote()
-                .sendObject("{turnAvailable: true}");
-    }
-
     public void informUserAboutTurn(Long gameId, Long userId){
         Session session = sessions.get(userId);
         if (session != null)
-            session.getAsyncRemote().sendObject("{\"turnAvailable\": true,\"timestamp\":%s, gameID:%d}"
+            session.getAsyncRemote().sendObject("{\"turnAvailable\": true,\"timestamp\":%s, \"gameID\":%d}"
                     .formatted(Long.toString(System.currentTimeMillis()), gameId));
     }
 
@@ -79,15 +74,22 @@ public class CheckersSocketsManager {
         Session session = sessions.get(userId);
         if (session != null)
             session.getAsyncRemote().sendObject("{\"gameFinished\": true," +
-                                                    "\"winSide\": \"%s\", \"id\":%s, gameID:%d}".formatted(winSide.name(),
+                                                    "\"winSide\": \"%s\", \"id\":%s, \"gameID\":%d}".formatted(winSide.name(),
                                                             Long.toString(System.currentTimeMillis()), gameId));
     }
 
     public void informUserThatOpponentConnectedToGame(Long gameId, Long userId){
         Session session = sessions.get(userId);
         if (session != null)
-            session.getAsyncRemote().sendObject("{\"isOpponentConnected\": true, \"id\":%s, gameID:%d}".formatted(
+            session.getAsyncRemote().sendObject("{\"isOpponentConnected\": true, \"id\":%s, \"gameID\":%d}".formatted(
                             Long.toString(System.currentTimeMillis()), gameId));
+    }
+
+    public void informUserThatOpponentCapitulatedGame(Long gameId, Long winnerId){
+        Session session = sessions.get(winnerId);
+        if (session != null)
+            session.getAsyncRemote().sendObject("{\"isOpponentCapitulated\": true, \"id\":%s, \"gameID\":%d}".formatted(
+                    Long.toString(System.currentTimeMillis()), gameId));
     }
 }
 

@@ -15,4 +15,14 @@ public class GameDTO {
     public Long winnerId;
 
     public CheckerColor turnOf = null;
+
+    public CheckerColor getWinnerSideColor(){
+        if (winnerId != null){
+            if (winnerId.equals(firstUserId))
+                return firstUserColor;
+            else if (winnerId.equals(secondUserId))
+                return secondUserColor;
+        }
+        return null;
+    }
 }

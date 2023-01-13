@@ -94,7 +94,25 @@ public class RussianCheckers {
             return position;
         }
 
+        /**
+         * @return all available steps for checker by game rules
+         */
         public List<CheckerGameStep> getAvailableSteps()
+                throws OutOfBorderException, IllegalCheckerPosition, GameStateError,
+                CheckerGameStep.CheckerStepApplyException {
+            List<CheckerGameStep> blindSteps = getBlindAvailableSteps();
+
+            // if you can't eat the enemy and anyone can kill instead you, make a step should other
+            if (!blindSteps.isEmpty() && !blindSteps.get(0).isSomeCheckerKilled() && isSomeKillSteps())
+                blindSteps.clear();
+
+            return blindSteps;
+        }
+
+        /**
+         * @return all available steps for checker without relation to other available player move
+         */
+        private List<CheckerGameStep> getBlindAvailableSteps()
                 throws OutOfBorderException, IllegalCheckerPosition, GameStateError,
                 CheckerGameStep.CheckerStepApplyException {
 
@@ -104,7 +122,7 @@ public class RussianCheckers {
 
             boolean isCheckerKilled = false;
             List<CheckerGameStep> steps = new ArrayList<>();
-            hide();
+//            hide();
             switch (type){
                 case Checker -> {
                     // set forward direction
@@ -183,7 +201,7 @@ public class RussianCheckers {
                             default -> -1;
                         };
 
-                        isCheckerKilled = false;
+                        boolean isDeadCandidate = false;
 
                         Checker cell = null, killed = null;
                         for (int stepNumber = 1;
@@ -196,10 +214,12 @@ public class RussianCheckers {
                                 var step = new CheckerGameStep(this, position, pos);
                                 step.setKilledChecker(killed);
                                 steps.add(step);
-                            } else {
-                                if (killed == null){
-                                    killed = cell;
+                                if (isDeadCandidate)
                                     isCheckerKilled = true;
+                            } else {
+                                if (killed == null && !cell.color.equals(color)){
+                                    killed = cell;
+                                    isDeadCandidate = true;
                                 }
                                 else
                                     break;
@@ -210,7 +230,8 @@ public class RussianCheckers {
             }
             if (isCheckerKilled)
                 steps = steps.stream().filter(CheckerGameStep::isSomeCheckerKilled).toList();
-            show();
+
+//            show();
             return steps;
         }
 
@@ -309,13 +330,13 @@ public class RussianCheckers {
         }
 
         // temporary solution of check
-        private boolean isSomeKills(){
+        private boolean isSomeKillSteps(){
             return Arrays.stream(board).flatMap(Arrays::stream)
                     .filter(Objects::nonNull)
                     .filter(c -> c.color.equals(color))
                     .flatMap(checker -> {
                             try {
-                                return checker.getAvailableSteps().stream();
+                                return checker.getBlindAvailableSteps().stream();
                             } catch (Throwable ignore) {
                                 return Stream.empty();
                             }
@@ -341,7 +362,7 @@ public class RussianCheckers {
                 List<CheckerGameStep> availableSteps = colorizedCheckers.stream()
                         .flatMap(checker -> {
                             try {
-                                return checker.getAvailableSteps().stream();
+                                return checker.getBlindAvailableSteps().stream();
                             } catch (Throwable ignore) {
                                 return Stream.empty();
                             }
